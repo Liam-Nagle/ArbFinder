@@ -306,6 +306,51 @@ tbody td {
 
 .found-at { color: var(--text-muted); font-size: 12px; white-space: nowrap; }
 
+/* Editable odds inputs — look like plain text until interacted with */
+.leg-odds-input {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 12px;
+  width: 62px;
+  padding: 2px 4px;
+  cursor: text;
+  -moz-appearance: textfield;
+}
+.leg-odds-input::-webkit-outer-spin-button,
+.leg-odds-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.leg-odds-input:hover { border-color: var(--border); background: var(--surface2); }
+.leg-odds-input:focus { border-color: var(--accent); background: var(--surface2); outline: none; }
+
+/* Row with manually edited odds */
+tr.edited { background: #ffd74008; }
+tr.edited .market-title::before {
+  content: "✎ ";
+  color: var(--yellow);
+  font-size: 11px;
+}
+
+/* Reset button */
+.reset-odds-btn {
+  margin-top: 6px;
+  padding: 3px 10px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.reset-odds-btn:hover { color: var(--yellow); border-color: var(--yellow); }
+
+/* Negative arb / profit */
+.arb-pct.negative { color: var(--red); font-size: 16px; }
+.profit.negative   { color: var(--red); }
+.no-arb-hint       { color: var(--red); font-size: 11px; margin-left: 6px; }
+
 .hidden { display: none !important; }
 
 /* Responsive */
