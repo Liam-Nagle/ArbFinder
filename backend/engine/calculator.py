@@ -32,10 +32,15 @@ def find_arb_for_pair(
     outcomes_b = {o.name.lower(): (o.odds, market_b) for o in market_b.outcomes}
 
     shared = set(outcomes_a) & set(outcomes_b)
-    if len(shared) < 2:
+
+    # Every outcome in either market must be in the shared set.
+    # If an outcome exists in one market but not the other, it means we'd leave
+    # a result uncovered (e.g. "Arsenal win") and the bet is not a true arb.
+    all_outcomes = set(outcomes_a) | set(outcomes_b)
+    if shared != all_outcomes or len(shared) < 2:
         return None
 
-    # For each shared outcome pick the best (highest) odds across both exchanges
+    # For each outcome pick the best (highest) odds across both exchanges
     best: dict[str, tuple[float, Market]] = {}
     for name in shared:
         odds_a, mkt_a = outcomes_a[name]
