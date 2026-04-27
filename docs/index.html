@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArbFinder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <h1>ArbFinder</h1>
+      <span class="subtitle">Cross-Exchange Arbitrage Scanner</span>
+    </div>
+    <div class="header-right">
+      <button id="settingsBtn" class="icon-btn" title="Settings">&#9881;</button>
+    </div>
+  </header>
+
+  <!-- Settings panel -->
+  <div id="settingsPanel" class="settings-panel hidden">
+    <h3>Settings</h3>
+    <label>
+      API URL
+      <input id="apiUrlInput" type="text" placeholder="http://localhost:8000" />
+    </label>
+    <p class="hint">Leave blank when served from the backend directly. Set your Render URL when using GitHub Pages.</p>
+    <div class="settings-actions">
+      <button id="saveSettings">Save</button>
+      <button id="closeSettings" class="secondary">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-value" id="statCount">—</span>
+      <span class="stat-label">Opportunities</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value green" id="statBest">—</span>
+      <span class="stat-label">Best Arb %</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" id="statUpdated">—</span>
+      <span class="stat-label">Last Updated</span>
+    </div>
+    <div class="stat" id="exchangeStatuses"></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
+      <label>Min Arb %</label>
+      <input id="filterMinArb" type="number" value="0" min="0" step="0.1" />
+    </div>
+    <div class="filter-group">
+      <label>Category</label>
+      <select id="filterCategory">
+        <option value="">All</option>
+        <option value="politics">Politics</option>
+        <option value="sports">Sports</option>
+        <option value="crypto">Crypto</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Exchange</label>
+      <select id="filterExchange">
+        <option value="">All</option>
+      </select>
+    </div>
+    <button id="refreshBtn">&#8635; Refresh</button>
+  </div>
+
+  <!-- Main table -->
+  <main>
+    <div id="loadingState" class="empty-state">
+      <div class="spinner"></div>
+      <p>Scanning exchanges…</p>
+    </div>
+
+    <div id="emptyState" class="empty-state hidden">
+      <p class="empty-icon">&#128269;</p>
+      <p>No arbitrage opportunities found right now.</p>
+      <p class="hint">Markets are scanned every 60 seconds.</p>
+    </div>
+
+    <table id="arbTable" class="hidden">
+      <thead>
+        <tr>
+          <th>Market</th>
+          <th>Category</th>
+          <th>Arb %</th>
+          <th>Guaranteed Profit</th>
+          <th>Legs</th>
+          <th>Found</th>
+        </tr>
+      </thead>
+      <tbody id="arbBody"></tbody>
+    </table>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

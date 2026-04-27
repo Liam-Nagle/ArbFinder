@@ -1,0 +1,32 @@
+exchanges:
+  polymarket:
+    enabled: true
+
+  smarkets:
+    enabled: true
+
+  betfair:
+    enabled: false
+    api_key: ""
+    username: ""
+    password: ""
+
+  odds_api:
+    enabled: false
+    api_key: ""
+    sports:
+      - soccer_epl
+      - soccer_uefa_champs_league
+      - basketball_nba
+      - americanfootball_nfl
+      - tennis_atp_french_open
+
+settings:
+  bankroll: 1000.0
+  min_arb_percent: 0.5
+  poll_interval_seconds: 60
+  match_threshold: 80.0
+
+cors:
+  allowed_origins:
+    - "*"
