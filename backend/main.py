@@ -1,12 +1,12 @@
 import asyncio
 import logging
+import time
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.config import config
@@ -21,6 +21,10 @@ from backend.store import store
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
+
+# Per-exchange cache so slow-polling exchanges (e.g. OddsAPI) aren't hit every cycle
+_last_fetched: dict[str, float] = {}
+_cached_markets: dict[str, list[Market]] = {}
 
 
 def build_exchanges():
@@ -37,26 +41,59 @@ def build_exchanges():
     return exchanges
 
 
+def _exchange_interval(exchange) -> int:
+    """Return poll interval in seconds for a given exchange."""
+    if isinstance(exchange, OddsApiExchange):
+        return config.exchanges.odds_api.poll_interval_seconds
+    return config.settings.poll_interval_seconds
+
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
 async def poll_once(exchanges):
+    now = time.monotonic()
     all_markets: list[Market] = []
     exchange_status: dict = {}
 
     for exchange in exchanges:
+        interval = _exchange_interval(exchange)
+        last = _last_fetched.get(exchange.name, 0)
+
+        if now - last < interval:
+            # Interval not elapsed — serve from cache
+            cached = _cached_markets.get(exchange.name, [])
+            all_markets.extend(cached)
+            exchange_status[exchange.name] = {
+                "status": "ok",
+                "market_count": len(cached),
+                "cached": True,
+                "last_fetched": exchange_status.get(exchange.name, {}).get("last_fetched"),
+            }
+            continue
+
         try:
             markets = await exchange.fetch_markets()
+            _cached_markets[exchange.name] = markets
+            _last_fetched[exchange.name] = now
             all_markets.extend(markets)
             exchange_status[exchange.name] = {
                 "status": "ok",
                 "market_count": len(markets),
-                "last_fetched": datetime.utcnow().isoformat(),
+                "cached": False,
+                "last_fetched": _utc_now_iso(),
             }
             logger.info(f"{exchange.name}: {len(markets)} markets")
         except Exception as e:
             logger.error(f"{exchange.name} failed: {e}")
+            cached = _cached_markets.get(exchange.name, [])
+            all_markets.extend(cached)
             exchange_status[exchange.name] = {
                 "status": "error",
                 "error": str(e),
-                "market_count": 0,
+                "market_count": len(cached),
+                "cached": True,
                 "last_fetched": None,
             }
 
@@ -119,7 +156,6 @@ async def get_status():
     return store.get_status()
 
 
-# Serve the frontend — must come last so API routes take priority
 docs_dir = Path(__file__).parent.parent / "docs"
 if docs_dir.exists():
     app.mount("/", StaticFiles(directory=str(docs_dir), html=True), name="frontend")

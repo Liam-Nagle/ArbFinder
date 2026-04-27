@@ -23,6 +23,7 @@ class OddsApiConfig(BaseModel):
     enabled: bool = False
     api_key: str = ""
     sports: list[str] = []
+    poll_interval_seconds: int = 900  # 15 min — preserves free-tier credits
 
 
 class ExchangesConfig(BaseModel):

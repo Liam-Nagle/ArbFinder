@@ -1,5 +1,5 @@
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import BaseModel
 
 from backend.exchanges.base import Market
@@ -72,7 +72,7 @@ def find_arb_for_pair(
         total_stake=bankroll,
         guaranteed_return=guaranteed_return,
         guaranteed_profit=guaranteed_profit,
-        found_at=datetime.utcnow().isoformat(),
+        found_at=datetime.now(timezone.utc).isoformat(),
     )
 
 

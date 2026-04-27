@@ -14,6 +14,7 @@ exchanges:
   odds_api:
     enabled: false
     api_key: ""
+    poll_interval_seconds: 900  # 15 min — free tier has 500 credits/month
     sports:
       - soccer_epl
       - soccer_uefa_champs_league

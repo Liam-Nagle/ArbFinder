@@ -43,7 +43,7 @@ class OddsApiExchange(Exchange):
                         f"{self.BASE_URL}/sports/{sport}/odds/",
                         params={
                             "apiKey": self._cfg.api_key,
-                            "regions": "uk,eu",
+                            "regions": "uk",
                             "markets": "h2h",
                             "oddsFormat": "decimal",
                         },
